@@ -32,6 +32,7 @@ const LOGIN_MUTATION = gql`
         id
         name
       }
+      token
     }
   }
 `;
