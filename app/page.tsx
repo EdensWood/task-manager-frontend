@@ -14,7 +14,7 @@ export default function HomePage() {
     if (isAuthenticated === true) {
       router.push("/dashboard");
     } else if (isAuthenticated === false) {
-      router.push("/signin");
+      router.push("/sign-in");
     }
     // isAuthenticated will be null during initial check
   }, [isAuthenticated, router]);
