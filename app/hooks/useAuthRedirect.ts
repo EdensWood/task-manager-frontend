@@ -15,7 +15,7 @@ export function useAuthRedirect() {
       setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);
-      router.push("/login"); // Redirect to login if not authenticated
+      router.push("/sign-in"); // Redirect to login if not authenticated
     }
   }, [router]);
 
