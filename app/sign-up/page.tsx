@@ -27,8 +27,8 @@ interface SignupVariables {
 
 // 2. Signup mutation (different from login!)
 const SIGNUP_MUTATION = gql`
-  mutation Signup($name: String!, $email: String!, $password: String!) {
-    signup(name: $name, email: $email, password: $password) {
+  mutation Register($name: String!, $email: String!, $password: String!) {
+    register(name: $name, email: $email, password: $password) {
       token
       user {
         id
