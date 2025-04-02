@@ -8,8 +8,8 @@ import Link from "next/link";
 import { toast } from "react-hot-toast";
 
 // 1. TypeScript interfaces
-interface SignupData {
-  signup: {
+interface RegisterData {
+  register: {
     token: string;
     user: {
       id: string;
@@ -19,14 +19,14 @@ interface SignupData {
   };
 }
 
-interface SignupVariables {
+interface RegisterVariables {
   name: string;
   email: string;
   password: string;
 }
 
-// 2. Signup mutation (different from login!)
-const SIGNUP_MUTATION = gql`
+// 2. Register mutation
+const REGISTER_MUTATION = gql`
   mutation Register($name: String!, $email: String!, $password: String!) {
     register(name: $name, email: $email, password: $password) {
       token
@@ -46,27 +46,27 @@ export default function SignupPage() {
   const router = useRouter();
 
   // 3. Type-safe mutation hook
-  const [signup, { loading, error }] = useMutation<SignupData, SignupVariables>(
-    SIGNUP_MUTATION,
+  const [register, { loading, error }] = useMutation<RegisterData, RegisterVariables>(
+    REGISTER_MUTATION,
     {
       onCompleted: (data) => {
-        Cookies.set("token", data.signup.token, { 
+        Cookies.set("token", data.register.token, { 
           expires: 1,
-          secure: process.env.NODE_ENV === "production" // HTTPS only in production
+          secure: process.env.NODE_ENV === "production"
         });
         toast.success("Account created successfully!");
         router.push("/dashboard");
       },
       onError: (err) => {
-        toast.error("Signup failed. Please try again.");
-        console.error("Signup error:", err);
+        toast.error("Registration failed. Please try again.");
+        console.error("Registration error:", err);
       },
     }
   );
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signup({ variables: { name, email, password } });
+    await register({ variables: { name, email, password } });
   };
 
   return (
@@ -76,7 +76,6 @@ export default function SignupPage() {
           <h1 className="text-3xl font-bold text-gray-900">Create account</h1>
           <p className="mt-2 text-gray-600">Get started with your new account</p>
           
-          {/* Error display */}
           {error && (
             <div className="p-2 mt-4 text-sm text-red-600 bg-red-50 rounded-md">
               {error.message.replace("GraphQL error: ", "")}
@@ -84,7 +83,7 @@ export default function SignupPage() {
           )}
         </div>
         
-        <form onSubmit={handleSignup} className="mt-8 space-y-6">
+        <form onSubmit={handleRegister} className="mt-8 space-y-6">
           <div className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -139,7 +138,7 @@ export default function SignupPage() {
                 loading ? "opacity-70 cursor-not-allowed" : ""
               }`}
             >
-              {loading ? "Creating account..." : "Sign up"}
+              {loading ? "Creating account..." : "Register"}
             </button>
           </div>
         </form>
