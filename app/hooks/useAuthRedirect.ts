@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
+// app/hooks/useAuthRedirect.ts
 export function useAuthRedirect() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

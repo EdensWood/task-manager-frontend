@@ -3,7 +3,7 @@ import { setContext } from "@apollo/client/link/context";
 import Cookies from "js-cookie";
 
 const httpLink = createHttpLink({
-  uri: "http://localhost:4000/graphql", // Your backend URL
+  uri: process.env.NEXT_PUBLIC_API_URL + "/graphql", // Updated to use env variable
   credentials: "include",
 });
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
@@ -8,6 +7,23 @@ import Cookies from "js-cookie";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 
+// 1. Define proper TypeScript interfaces
+interface LoginData {
+  login: {
+    token: string;
+    user: {
+      id: string;
+      name: string;
+    };
+  };
+}
+
+interface LoginVariables {
+  email: string;
+  password: string;
+}
+
+// 2. GraphQL mutation with proper typing
 const LOGIN_MUTATION = gql`
   mutation Login($email: String!, $password: String!) {
     login(email: $email, password: $password) {
@@ -23,20 +39,27 @@ const LOGIN_MUTATION = gql`
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [login, { loading, error }] = useMutation(LOGIN_MUTATION);
   const router = useRouter();
+
+  // 3. Type-safe mutation hook
+  const [login, { loading, error }] = useMutation<LoginData, LoginVariables>(
+    LOGIN_MUTATION,
+    {
+      onCompleted: (data) => {
+        Cookies.set("token", data.login.token, { expires: 1, secure: true });
+        router.push("/dashboard");
+        router.refresh();
+      },
+      onError: (err) => {
+        toast.error("Login failed. Please check your credentials.");
+        console.error("Login error:", err);
+      },
+    }
+  );
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const { data } = await login({ variables: { email, password } });
-      Cookies.set("token", data.login.token, { expires: 1 });
-      window.location.href = "/dashboard"; 
-      router.refresh(); // Ensure the dashboard updates
-    } catch (err) {
-      toast.error("Login failed. Please check your credentials.");
-      console.error(err);
-    }
+    await login({ variables: { email, password } });
   };
 
   return (
@@ -45,6 +68,13 @@ export default function LoginPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Welcome back</h1>
           <p className="mt-2 text-gray-600">Sign in to your account</p>
+          
+          {/* 4. Display GraphQL errors if they exist */}
+          {error && (
+            <div className="p-2 mt-4 text-sm text-red-600 bg-red-50 rounded-md">
+              {error.message}
+            </div>
+          )}
         </div>
         
         <form onSubmit={handleLogin} className="mt-8 space-y-6">
@@ -83,7 +113,9 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              className={`w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
               {loading ? "Logging in..." : "Login"}
             </button>
@@ -93,7 +125,10 @@ export default function LoginPage() {
         <div className="text-center">
           <p className="text-sm text-gray-600">
             Don&apos;t have an account?{" "}
-            <Link href="/sign-up" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link 
+              href="/sign-up" 
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
               Sign up
             </Link>
           </p>
