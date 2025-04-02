@@ -7,7 +7,6 @@ import Cookies from "js-cookie";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 
-// 1. TypeScript interfaces
 interface RegisterData {
   register: {
     token: string;
@@ -25,7 +24,6 @@ interface RegisterVariables {
   password: string;
 }
 
-// 2. Register mutation
 const REGISTER_MUTATION = gql`
   mutation Register($name: String!, $email: String!, $password: String!) {
     register(name: $name, email: $email, password: $password) {
@@ -45,7 +43,6 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  // 3. Type-safe mutation hook
   const [register, { loading, error }] = useMutation<RegisterData, RegisterVariables>(
     REGISTER_MUTATION,
     {
@@ -54,8 +51,8 @@ export default function SignupPage() {
           expires: 1,
           secure: process.env.NODE_ENV === "production"
         });
-        toast.success("Account created successfully!");
-        router.push("/dashboard");
+        toast.success("Account created successfully! Please sign in.");
+        router.push("/sign-in"); // Changed from "/dashboard" to "/sign-in"
       },
       onError: (err) => {
         toast.error("Registration failed. Please try again.");
@@ -68,7 +65,7 @@ export default function SignupPage() {
     e.preventDefault();
     await register({ variables: { name, email, password } });
   };
-
+  
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow">
