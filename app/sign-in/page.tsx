@@ -31,8 +31,7 @@ export default function LoginPage() {
     try {
       const { data } = await login({ variables: { email, password } });
       Cookies.set("token", data.login.token, { expires: 1 });
-      toast.success("Login successful!");
-      router.push("/dashboard");
+      window.location.href = "/dashboard"; 
       router.refresh(); // Ensure the dashboard updates
     } catch (err) {
       toast.error("Login failed. Please check your credentials.");

@@ -1,19 +1,19 @@
-// hooks/useAuthRedirect.ts
+// app/hooks/useAuthRedirect.ts
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
 export function useAuthRedirect() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const router = useRouter();
 
   useEffect(() => {
     const token = Cookies.get("token");
-    if (!token) {
-      router.push("/login");
-    }
-  }, [router]);
+    setIsAuthenticated(!!token);
+  }, []);
 
-  return null;
+  return { isAuthenticated };
 }
