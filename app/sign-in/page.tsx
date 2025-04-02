@@ -3,14 +3,12 @@
 import { useState } from "react";
 import { useMutation, gql } from "@apollo/client";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 
 // 1. Define proper TypeScript interfaces
 interface LoginData {
   login: {
-    token: string;
     user: {
       id: string;
       name: string;
@@ -27,12 +25,10 @@ interface LoginVariables {
 const LOGIN_MUTATION = gql`
   mutation Login($email: String!, $password: String!) {
     login(email: $email, password: $password) {
-      token
       user {
         id
         name
       }
-      token
     }
   }
 `;
@@ -46,8 +42,8 @@ export default function LoginPage() {
   const [login, { loading, error }] = useMutation<LoginData, LoginVariables>(
     LOGIN_MUTATION,
     {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onCompleted: (data) => {
-        Cookies.set("token", data.login.token, { expires: 1, secure: true });
         router.push("/dashboard");
         router.refresh();
       },

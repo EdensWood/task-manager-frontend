@@ -1,16 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
 import { useMutation, gql } from "@apollo/client";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 
 // 1. TypeScript interfaces
 interface RegisterData {
   register: {
-    token: string;
     user: {
       id: string;
       name: string;
@@ -29,7 +28,6 @@ interface RegisterVariables {
 const REGISTER_MUTATION = gql`
   mutation Register($name: String!, $email: String!, $password: String!) {
     register(name: $name, email: $email, password: $password) {
-      token
       user {
         id
         name
@@ -50,10 +48,6 @@ export default function SignupPage() {
     REGISTER_MUTATION,
     {
       onCompleted: (data) => {
-        Cookies.set("token", data.register.token, { 
-          expires: 1,
-          secure: process.env.NODE_ENV === "production"
-        });
         toast.success("Account created successfully!");
         router.push("/dashboard");
       },
