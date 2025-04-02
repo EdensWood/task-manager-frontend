@@ -5,16 +5,19 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
-// app/hooks/useAuthRedirect.ts
 export function useAuthRedirect() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const router = useRouter();
 
   useEffect(() => {
-    const token = Cookies.get("token");
-    setIsAuthenticated(!!token);
-  }, []);
+    const sessionCookie = Cookies.get("taskmanager.sid"); // Check for session cookie
+    if (sessionCookie) {
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+      router.push("/login"); // Redirect to login if not authenticated
+    }
+  }, [router]);
 
   return { isAuthenticated };
 }
