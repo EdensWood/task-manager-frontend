@@ -6,24 +6,25 @@ import { API_BASE_URL } from "./config";
 
 const httpLink = createHttpLink({
   uri: `${API_BASE_URL}/graphql`,
-  credentials: "include", // Ensure cookies are sent with requests
+  credentials: 'include',
+  headers: {
+    'X-Requested-With': 'XMLHttpRequest'
+  }
 });
 
-// Removed authLink as it's not needed for session-based auth
-
 const client = new ApolloClient({
-  link: httpLink, // Directly use httpLink
+  link: httpLink,
   cache: new InMemoryCache(),
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: "no-cache",
-      errorPolicy: "ignore",
+      fetchPolicy: 'cache-and-network',
+      errorPolicy: 'all'
     },
     query: {
-      fetchPolicy: "no-cache",
-      errorPolicy: "all",
-    },
-  },
+      fetchPolicy: 'network-only',
+      errorPolicy: 'all'
+    }
+  }
 });
 
 export default client;
