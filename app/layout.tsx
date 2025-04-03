@@ -3,12 +3,12 @@
 import client from "@/lib/apollo-client";
 import { ApolloProvider } from "@apollo/client";
 import "./globals.css";
-import { useAuthRedirect } from "@/app/hooks/useAuthRedirect";
+// import { useAuthRedirect } from "@/app/hooks/useAuthRedirect";
 import Head from "next/head";
 import { useViewportRestrictions } from "@/app/hooks/useViewportRestrictions";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  useAuthRedirect();
+  // useAuthRedirect();
   useViewportRestrictions(320); // Enforce minimum 320px width
   
   return (
