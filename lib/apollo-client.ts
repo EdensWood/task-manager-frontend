@@ -1,44 +1,29 @@
-// lib/apollo-client.ts
-import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
-import { onError } from '@apollo/client/link/error';
-import { API_BASE_URL } from './config';
+import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { setContext } from "@apollo/client/link/context";
+import { API_BASE_URL } from "./config";
+// Removed Cookies import as it's not needed for session-based auth
 
 const httpLink = createHttpLink({
   uri: `${API_BASE_URL}/graphql`,
-  credentials: 'include'
+  credentials: "include", // Ensure cookies are sent with requests
 });
 
-const authLink = setContext((_, { headers }) => {
-  return {
-    headers: {
-      ...headers,
-      'X-Requested-With': 'XMLHttpRequest' // Helps with CSRF protection
-    }
-  };
-});
+// Removed authLink as it's not needed for session-based auth
 
-const errorLink = onError(({ networkError }) => {
-  if (networkError?.message.includes('401')) {
-    // Handle unauthorized errors
-    window.location.href = '/sign-in';
-  }
-});
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const client = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
+  link: httpLink, // Directly use httpLink
   cache: new InMemoryCache(),
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: 'cache-and-network',
-      errorPolicy: 'all'
+      fetchPolicy: "no-cache",
+      errorPolicy: "ignore",
     },
     query: {
-      fetchPolicy: 'network-only',
-      errorPolicy: 'all'
-    }
-  }
+      fetchPolicy: "no-cache",
+      errorPolicy: "all",
+    },
+  },
 });
 
 export default client;
