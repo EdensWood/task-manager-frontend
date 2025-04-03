@@ -11,7 +11,16 @@ import { Task } from "@/app/types/task";
 
 export default function Dashboard() {
   // Data fetching
-  const { data, loading, error } = useQuery<{ myTasks: Task[] }>(GET_MY_TASKS);
+  const { data, loading, error } = useQuery<{ myTasks: Task[] }>(GET_MY_TASKS, {
+    fetchPolicy: "network-only", // Ensure fresh data is fetched
+  });
+  
+  console.log("Loading:", loading);
+  console.log("Error:", error);
+  console.log("Fetched tasks:", data?.myTasks);
+  
+  
+  
   const [deleteTask] = useMutation(DELETE_TASK_MUTATION, {
     refetchQueries: [{ query: GET_MY_TASKS }],
   });
