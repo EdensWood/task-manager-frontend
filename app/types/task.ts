@@ -4,6 +4,11 @@ export interface Task {
     title: string;
     description: string;
     status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+    user:{
+      id: string;
+      name: string;
+      email: string;
+    }
   }
   
   export type TaskFormProps = {
