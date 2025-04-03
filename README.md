@@ -19,7 +19,7 @@ Next.js, Apollo Client, Tailwind CSS
 Express, GraphQL, PostgreSQL, Sequelize  
 
 **Deployment**:
-Vercel (frontend), Heroku (backend)
+Vercel (frontend), Render (backend)
 
 ---
 
