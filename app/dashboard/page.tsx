@@ -21,22 +21,30 @@ export default function Dashboard() {
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteTask({ 
+      await deleteTask({
         variables: { id },
+        optimisticResponse: {
+          __typename: "Mutation",
+          deleteTask: {
+            __typename: "Task",
+            id,  // We assume the task has been deleted
+          },
+        },
         update: (cache) => {
-          const existingTasks = cache.readQuery<{ myTasks: Task[] }>({ 
-            query: GET_MY_TASKS 
+          const existingTasks = cache.readQuery<{ myTasks: Task[] }>({
+            query: GET_MY_TASKS,
           });
-          
+  
           if (existingTasks) {
+            // Filtering out the task from the cache to remove it immediately
             cache.writeQuery({
               query: GET_MY_TASKS,
               data: {
-                myTasks: existingTasks.myTasks.filter(task => task.id !== id)
-              }
+                myTasks: existingTasks.myTasks.filter((task) => task.id !== id),
+              },
             });
           }
-        }
+        },
       });
     } catch (err) {
       console.error("Delete error:", err);
