@@ -10,7 +10,7 @@ export function useAuthRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    const sessionCookie = Cookies.get("connect.sid"); // Check for session cookie
+    const sessionCookie = Cookies.get("taskmanager.sid"); // Check for session cookie
     if (sessionCookie) {
       setIsAuthenticated(true);
     } else {
