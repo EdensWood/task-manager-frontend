@@ -1,5 +1,6 @@
 import { Task } from "../types/task";
 import TaskItem from "./TaskItem";
+import { motion, AnimatePresence } from "framer-motion";  // Import Framer Motion
 
 interface TaskListProps {
   tasks: Task[];
@@ -15,14 +16,23 @@ export default function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
           No tasks found. Create your first task!
         </div>
       ) : (
-        tasks.map((task) => (
-          <TaskItem 
-            key={task.id} 
-            task={task} 
-            onEdit={onEdit} 
-            onDelete={onDelete} 
-          />
-        ))
+        <AnimatePresence> {/* Enables exit animations */}
+          {tasks.map((task) => (
+            <motion.div
+              key={task.id}  // This ensures each item has a unique key
+              initial={{ opacity: 0 }}  // Initial state (invisible)
+              animate={{ opacity: 1 }}  // Animate to visible
+              exit={{ opacity: 0 }}  // Fade out when removed
+              transition={{ duration: 0.3 }}  // Duration of the fade
+            >
+              <TaskItem 
+                task={task} 
+                onEdit={onEdit} 
+                onDelete={onDelete} 
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       )}
     </div>
   );
