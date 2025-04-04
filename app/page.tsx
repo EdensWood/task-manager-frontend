@@ -7,17 +7,20 @@ import { useAuthRedirect } from "@/app/hooks/useAuthRedirect";
 
 export default function HomePage() {
   const router = useRouter();
-  const { isCheckingAuth } = useAuthRedirect();
+  const { isAuthenticated } = useAuthRedirect();
 
   useEffect(() => {
-    // Only redirect when auth check is complete
-    if (!isCheckingAuth) {
-      router.push("/dashboard"); // Default to dashboard if auth is complete
+    // Redirect logic
+    if (isAuthenticated === true) {
+      router.push("/dashboard");
+    } else if (isAuthenticated === false) {
+      router.push("/sign-in");
     }
-  }, [isCheckingAuth, router]);
+    // isAuthenticated will be null during initial check
+  }, [isAuthenticated, router]);
 
   // Show loading state during initial auth check
-  if (isCheckingAuth) {
+  if (isAuthenticated === null) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-xl">Loading...</div>

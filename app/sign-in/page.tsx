@@ -1,192 +1,135 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "@apollo/client";
+import { useMutation, gql } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
-import { LOGIN_MUTATION } from "@/app/graphql/mutations";
 
-export default function SignInPage() {
+// 1. Define proper TypeScript interfaces
+interface LoginData {
+  login: {
+    user: {
+      id: string;
+      name: string;
+    };
+  };
+}
+
+interface LoginVariables {
+  email: string;
+  password: string;
+}
+
+// 2. GraphQL mutation with proper typing
+const LOGIN_MUTATION = gql`
+  mutation Login($email: String!, $password: String!) {
+    login(email: $email, password: $password) {
+      user {
+        id
+        name
+      }
+    }
+  }
+`;
+
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const [login] = useMutation(LOGIN_MUTATION, {
-    context: {
-      headers: {
-        "Content-Type": "application/json",
+  // 3. Type-safe mutation hook
+  const [login, { loading, error }] = useMutation<LoginData, LoginVariables>(
+    LOGIN_MUTATION,
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      onCompleted: (data) => {
+        router.push("/dashboard");
+        router.refresh();
       },
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onCompleted: async (data) => {
-      // Verify session was properly set
-      try {
-        const sessionCheck = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/check-session`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-
-        if (sessionCheck.ok) {
-          const sessionData = await sessionCheck.json();
-          if (sessionData.authenticated) {
-            toast.success("Login successful!");
-            router.push("/dashboard");
-            router.refresh(); // Ensure client-side cache is updated
-          } else {
-            throw new Error("Session verification failed");
-          }
-        } else {
-          throw new Error("Unable to verify session");
-        }
-      } catch (error) {
-        console.error("Session verification error:", error);
-        toast.error("Login successful but session couldn't be verified");
-      }
-    },
-    onError: (error) => {
-      console.error("Login mutation error:", error);
-      toast.error(
-        error.message.includes("Invalid credentials")
-          ? "Invalid email or password"
-          : "Login failed. Please try again."
-      );
-    },
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      await login({
-        variables: { email, password },
-      });
-    } catch (error) {
-      console.error("Login form error:", error);
-    } finally {
-      setIsLoading(false);
+      onError: (err) => {
+        toast.error("Login failed. Please check your credentials.");
+        console.error("Login error:", err);
+      },
     }
+  );
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await login({ variables: { email, password } });
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-md">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Sign in to your account</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Or{" "}
-            <Link
-              href="/sign-up"
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
-              create a new account
-            </Link>
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome back</h1>
+          <p className="mt-2 text-gray-600">Sign in to your account</p>
+          
+          {/* 4. Display GraphQL errors if they exist */}
+          {error && (
+            <div className="p-2 mt-4 text-sm text-red-600 bg-red-50 rounded-md">
+              {error.message}
+            </div>
+          )}
         </div>
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        
+        <form onSubmit={handleLogin} className="mt-8 space-y-6">
           <div className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
+                Email
               </label>
               <input
                 id="email"
-                name="email"
                 type="email"
-                autoComplete="email"
-                required
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                disabled={isLoading}
+                className="w-full px-4 py-2 mt-1 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                required
               />
             </div>
-
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
               <input
                 id="password"
-                name="password"
                 type="password"
-                autoComplete="current-password"
-                required
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                disabled={isLoading}
+                className="w-full px-4 py-2 mt-1 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                required
               />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <Link
-                href="/forgot-password"
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                Forgot your password?
-              </Link>
             </div>
           </div>
 
           <div>
             <button
               type="submit"
-              disabled={isLoading}
-              className={`group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                isLoading ? "cursor-not-allowed opacity-75" : ""
+              disabled={loading}
+              className={`w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
               }`}
             >
-              {isLoading ? (
-                <>
-                  <svg
-                    className="-ml-1 mr-3 h-5 w-5 animate-spin text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Signing in...
-                </>
-              ) : (
-                "Sign in"
-              )}
+              {loading ? "Logging in..." : "Login"}
             </button>
           </div>
         </form>
+
+        <div className="text-center">
+          <p className="text-sm text-gray-600">
+            Don&apos;t have an account?{" "}
+            <Link 
+              href="/sign-up" 
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

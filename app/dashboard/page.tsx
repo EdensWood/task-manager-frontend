@@ -11,29 +11,7 @@ import { Task } from "@/app/types/task";
 
 export default function Dashboard() {
   // Data fetching
-  // In dashboard.tsx
-const { data, loading, error } = useQuery<{ myTasks: Task[] }>(GET_MY_TASKS, {
-  fetchPolicy: "network-only",
-  context: {
-    headers: {
-      "credentials": "include"
-    }
-  },
-  onError: (err) => {
-    console.error("Detailed error:", err);
-    if (err.message.includes("Unauthorized")) {
-      // Handle session expiration
-      window.location.href = "/login";
-    }
-  }
-});
-  
-  console.log("Loading:", loading);
-  console.log("Error:", error);
-  console.log("Fetched tasks:", data?.myTasks);
-  
-  
-  
+  const { data, loading, error } = useQuery<{ myTasks: Task[] }>(GET_MY_TASKS);
   const [deleteTask] = useMutation(DELETE_TASK_MUTATION, {
     refetchQueries: [{ query: GET_MY_TASKS }],
   });

@@ -8,19 +8,9 @@ import Head from "next/head";
 import { useViewportRestrictions } from "@/app/hooks/useViewportRestrictions";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const { isCheckingAuth } = useAuthRedirect();
-  useViewportRestrictions(320);
-
-  if (isCheckingAuth) {
-    return (
-      <html lang="en">
-        <body className="flex items-center justify-center min-h-screen">
-          <div className="text-xl">Loading application...</div>
-        </body>
-      </html>
-    );
-  }
-
+  useAuthRedirect();
+  useViewportRestrictions(320); // Enforce minimum 320px width
+  
   return (
     <html lang="en" className="min-w-[320px]">
       <Head>
