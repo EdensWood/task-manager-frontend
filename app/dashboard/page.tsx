@@ -23,13 +23,7 @@ export default function Dashboard() {
     try {
       await deleteTask({
         variables: { id },
-        optimisticResponse: {
-          __typename: "Mutation",
-          deleteTask: {
-            __typename: "Task",
-            id,  // We assume the task has been deleted
-          },
-        },
+        refetchQueries: [{ query: GET_MY_TASKS }],
         update: (cache) => {
           const existingTasks = cache.readQuery<{ myTasks: Task[] }>({
             query: GET_MY_TASKS,
