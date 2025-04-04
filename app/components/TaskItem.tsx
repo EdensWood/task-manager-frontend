@@ -9,56 +9,54 @@ interface TaskItemProps {
 }
 
 export default function TaskItem({ task, onEdit, onDelete }: TaskItemProps) {
-  const statusStyles = {
-    COMPLETED: {
-      container: 'bg-green-100 border-green-200',
-      text: 'text-green-800',
-      statusBadge: 'bg-green-200 text-green-800'
-    },
+  const statusMap = {
     PENDING: {
-      container: 'bg-amber-100 border-amber-200',
-      text: 'text-amber-800',
-      statusBadge: 'bg-amber-200 text-amber-800'
+      bg: "bg-amber-100",
+      text: "text-amber-800",
+      border: "border-amber-200"
     },
     IN_PROGRESS: {
-      container: 'bg-yellow-100 border-yellow-200',
-      text: 'text-yellow-800',
-      statusBadge: 'bg-yellow-200 text-yellow-800'
+      bg: "bg-blue-100",
+      text: "text-blue-800",
+      border: "border-blue-200"
+    },
+    COMPLETED: {
+      bg: "bg-green-100",
+      text: "text-green-800",
+      border: "border-green-200"
     }
   };
 
-  const styles = statusStyles[task.status as keyof typeof statusStyles] || {
-    container: 'bg-gray-100 border-gray-200',
-    text: 'text-gray-800',
-    statusBadge: 'bg-gray-200 text-gray-800'
-  };
+  const status = statusMap[task.status] || statusMap.PENDING;
 
   return (
-    <div className={`p-3 rounded-md mt-2 flex justify-between items-center border ${styles.container}`}>
-      <div className={`flex-1 ${styles.text}`}>
-        <h4 className="font-medium">{task.title}</h4>
-        {task.description && (
-          <p className="text-sm mt-1">{task.description}</p>
-        )}
-        <span className={`text-xs px-2 py-1 rounded-full ${styles.statusBadge}`}>
-          {task.status.toLowerCase().replace('_', ' ')}
-        </span>
-      </div>
-      <div className="flex space-x-3">
-        <button 
-          onClick={() => onEdit(task)}
-          className={`hover:opacity-75 transition-opacity ${styles.text}`}
-          aria-label="Edit task"
-        >
-          <FaEdit size={18} />
-        </button>
-        <button 
-          onClick={() => onDelete(task.id ?? '')}
-          className={`hover:opacity-75 transition-opacity ${styles.text}`}
-          aria-label="Delete task"
-        >
-          <FaTrash size={18} />
-        </button>
+    <div className={`p-4 mb-3 rounded-lg border ${status.bg} ${status.border}`}>
+      <div className="flex justify-between items-start">
+        <div>
+          <h3 className={`font-medium ${status.text}`}>{task.title}</h3>
+          {task.description && (
+            <p className="text-sm mt-1 text-gray-600">{task.description}</p>
+          )}
+          <span className={`inline-block mt-2 px-2 py-1 text-xs rounded-full ${status.bg} ${status.text}`}>
+            {task.status.toLowerCase().replace('_', ' ')}
+          </span>
+        </div>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => onEdit(task)}
+            className="text-gray-500 hover:text-gray-700"
+            aria-label="Edit task"
+          >
+            <FaEdit />
+          </button>
+          <button 
+            onClick={() => onDelete(task.id)}
+            className="text-gray-500 hover:text-red-500"
+            aria-label="Delete task"
+          >
+            <FaTrash />
+          </button>
+        </div>
       </div>
     </div>
   );

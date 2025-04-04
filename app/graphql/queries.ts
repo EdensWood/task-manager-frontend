@@ -8,10 +8,14 @@ export const GET_MY_TASKS = gql`
       title
       description
       status
+      user {
+        id
+        name
+        email
+      }
     }
   }
 `;
-
 
 // Add to queries.ts
 export const ME_QUERY = gql`
