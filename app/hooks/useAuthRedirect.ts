@@ -1,35 +1,48 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export function useAuthRedirect() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     async function checkAuth() {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/check-session`, {
           method: "GET",
-          credentials: "include", // ✅ Send cookies with request
+          credentials: "include",
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
 
-        if (res.ok) {
-          setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-          router.push("/sign-in"); // Redirect if not authenticated
+        const data = await res.json();
+        
+        if (!res.ok || !data.authenticated) {
+          if (pathname !== '/sign-in') {
+            router.push('/sign-in');
+          }
+          return;
+        }
+
+        if (pathname === '/sign-in') {
+          router.push('/dashboard');
         }
       } catch (error) {
         console.error("Auth check failed:", error);
-        setIsAuthenticated(false);
-        router.push("/sign-in");
+        if (pathname !== '/sign-in') {
+          router.push('/sign-in');
+        }
+      } finally {
+        setIsCheckingAuth(false);
       }
     }
 
     checkAuth();
-  }, [router]);
+  }, [router, pathname]);
 
-  return { isAuthenticated };
+  return { isCheckingAuth };
 }
