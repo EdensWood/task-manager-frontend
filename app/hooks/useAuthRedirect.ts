@@ -11,28 +11,25 @@ export function useAuthRedirect() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/check-session`, {
-          method: "GET",
-          credentials: "include",
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/check-session`, {
+          method: 'GET',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-          },
+          }
         });
 
-        const data = await res.json();
+        if (!response.ok) throw new Error('Auth check failed');
         
-        if (!res.ok || !data.authenticated) {
-          if (pathname !== '/sign-in') {
-            router.push('/sign-in');
-          }
-          return;
-        }
-
-        if (pathname === '/sign-in') {
+        const data = await response.json();
+        
+        if (data.authenticated && pathname === '/sign-in') {
           router.push('/dashboard');
+        } else if (!data.authenticated && pathname !== '/sign-in') {
+          router.push('/sign-in');
         }
       } catch (error) {
-        console.error("Auth check failed:", error);
+        console.error('Auth check error:', error);
         if (pathname !== '/sign-in') {
           router.push('/sign-in');
         }
