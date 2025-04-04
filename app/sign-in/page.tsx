@@ -1,133 +1,129 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, gql } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
+import { LOGIN_MUTATION } from "@/app/graphql/mutations";
 
-interface LoginData {
-  login: {
-    user: {
-      id: string;
-      name: string;
-      email: string;
-    };
-    token: string;
-  };
-}
-
-interface LoginVariables {
-  email: string;
-  password: string;
-}
-
-const LOGIN_MUTATION = gql`
-  mutation Login($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
-      user {
-        id
-        name
-        email
-      }
-      token
-    }
-  }
-`;
-
-export default function LoginPage() {
+export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const [login] = useMutation<LoginData, LoginVariables>(LOGIN_MUTATION, {
+  const [login] = useMutation(LOGIN_MUTATION, {
     context: {
       headers: {
         "Content-Type": "application/json",
-        "Accept": "application/json",
       },
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onCompleted: async (data) => {
+      // Verify session was properly set
+      try {
+        const sessionCheck = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/check-session`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        if (sessionCheck.ok) {
+          const sessionData = await sessionCheck.json();
+          if (sessionData.authenticated) {
+            toast.success("Login successful!");
+            router.push("/dashboard");
+            router.refresh(); // Ensure client-side cache is updated
+          } else {
+            throw new Error("Session verification failed");
+          }
+        } else {
+          throw new Error("Unable to verify session");
+        }
+      } catch (error) {
+        console.error("Session verification error:", error);
+        toast.error("Login successful but session couldn't be verified");
+      }
+    },
+    onError: (error) => {
+      console.error("Login mutation error:", error);
+      toast.error(
+        error.message.includes("Invalid credentials")
+          ? "Invalid email or password"
+          : "Login failed. Please try again."
+      );
     },
   });
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setIsLoading(true);
 
     try {
-      const { data } = await login({
+      await login({
         variables: { email, password },
-        fetchPolicy: "network-only",
       });
-
-      if (data?.login) {
-        // Verify session was established
-        const sessionCheck = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/check-session`, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (sessionCheck.ok) {
-          toast.success("Login successful!");
-          router.push("/dashboard");
-          router.refresh();
-        } else {
-          throw new Error("Session establishment failed");
-        }
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-      toast.error(
-        err instanceof Error 
-          ? err.message 
-          : "Login failed. Please try again."
-      );
+    } catch (error) {
+      console.error("Login form error:", error);
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-md">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Sign In</h1>
-          <p className="mt-2 text-gray-600">
-            Enter your credentials to access your account
+          <h1 className="text-3xl font-bold text-gray-900">Sign in to your account</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Or{" "}
+            <Link
+              href="/sign-up"
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
+              create a new account
+            </Link>
           </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email Address
-            </label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              required
-              disabled={isSubmitting}
-            />
-          </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                disabled={isLoading}
+              />
+            </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              required
-              disabled={isSubmitting}
-            />
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                disabled={isLoading}
+              />
+            </div>
           </div>
 
           <div className="flex items-center justify-between">
@@ -136,7 +132,7 @@ export default function LoginPage() {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
                 Remember me
@@ -144,37 +140,53 @@ export default function LoginPage() {
             </div>
 
             <div className="text-sm">
-              <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
-                Forgot password?
+              <Link
+                href="/forgot-password"
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
+                Forgot your password?
               </Link>
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-              isSubmitting ? "opacity-75 cursor-not-allowed" : ""
-            }`}
-          >
-            {isSubmitting ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Signing in...
-              </>
-            ) : "Sign in"}
-          </button>
+          <div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                isLoading ? "cursor-not-allowed opacity-75" : ""
+              }`}
+            >
+              {isLoading ? (
+                <>
+                  <svg
+                    className="-ml-1 mr-3 h-5 w-5 animate-spin text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Signing in...
+                </>
+              ) : (
+                "Sign in"
+              )}
+            </button>
+          </div>
         </form>
-
-        <div className="text-center text-sm text-gray-600">
-          Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="font-medium text-blue-600 hover:text-blue-500">
-            Sign up
-          </Link>
-        </div>
       </div>
     </div>
   );
