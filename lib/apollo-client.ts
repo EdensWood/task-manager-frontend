@@ -9,7 +9,6 @@ const httpLink = createHttpLink({
   credentials: "include",
   headers: {
     // Add this to ensure cookies are sent cross-domain
-    'Access-Control-Allow-Credentials': 'true',
     'X-Requested-With': 'XMLHttpRequest'
   }
    // Ensure cookies are sent with requests
