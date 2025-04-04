@@ -6,7 +6,12 @@ import { API_BASE_URL } from "./config";
 
 const httpLink = createHttpLink({
   uri: `${API_BASE_URL}/graphql`,
-  credentials: "include", // Ensure cookies are sent with requests
+  credentials: "include",
+  headers: {
+    // Add this to ensure cookies are sent cross-domain
+    'Access-Control-Allow-Credentials': 'true'
+  }
+   // Ensure cookies are sent with requests
 });
 
 // Removed authLink as it's not needed for session-based auth

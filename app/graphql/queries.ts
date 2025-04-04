@@ -11,3 +11,15 @@ export const GET_MY_TASKS = gql`
     }
   }
 `;
+
+
+// Add to queries.ts
+export const ME_QUERY = gql`
+  query Me {
+    me {
+      id
+      name
+      email
+    }
+  }
+`;
