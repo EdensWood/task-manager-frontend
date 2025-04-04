@@ -23,7 +23,6 @@ export default function Dashboard() {
     try {
       await deleteTask({
         variables: { id },
-        refetchQueries: [{ query: GET_MY_TASKS }],
         update: (cache) => {
           const existingTasks = cache.readQuery<{ myTasks: Task[] }>({
             query: GET_MY_TASKS,
