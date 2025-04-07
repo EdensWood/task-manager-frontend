@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Galada } from 'next/font/google';
 
-// Load Galada font
 const galada = Galada({ 
   weight: '400',
   subsets: ['latin'],
@@ -57,29 +56,35 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) return <div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div></div>;
+  if (loading) return (
+    <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  );
+  
   if (error) return <div className="text-center py-8 text-red-500">Error: {error.message}</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
-      {/* Centered Taskify Title */}
+      {/* Brand Header */}
       <div className="text-center mb-6">
         <h1 className={`${galada.className} text-5xl md:text-6xl text-blue-600 mb-2`}>Taskify</h1>
         <p className="text-gray-500 text-lg">Your personal task manager</p>
       </div>
 
       <div className="max-w-4xl mx-auto">
-        {/* Dashboard Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <div className="w-full sm:w-auto">
+        {/* Dashboard Controls */}
+        <div className="flex flex-col items-center sm:items-start sm:flex-row justify-between mb-6 gap-4">
+          {/* Title Section - Centered on mobile, left on desktop */}
+          <div className="text-center sm:text-left w-full sm:w-auto">
             <h2 className="text-xl md:text-2xl font-semibold text-gray-800">My Tasks</h2>
             <p className="text-gray-600 mt-1 text-sm md:text-base">
               {activeTaskCount} {activeTaskCount === 1 ? 'active task' : 'active tasks'}
             </p>
           </div>
           
+          {/* Action Buttons */}
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            {/* Filter Button */}
             <button
               onClick={() => setShowCompleted(!showCompleted)}
               className="flex items-center justify-center sm:justify-start gap-2 text-gray-700 bg-white p-2 sm:px-4 sm:py-2 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors flex-shrink-0"
@@ -91,7 +96,6 @@ export default function Dashboard() {
               </span>
             </button>
 
-            {/* Add Task Button */}
             <button
               onClick={() => setShowTaskForm(true)}
               className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all"
@@ -100,7 +104,6 @@ export default function Dashboard() {
               <span className="truncate">Add Task</span>
             </button>
 
-            {/* Logout Button */}
             <button
               onClick={handleLogout}
               className="md:hidden text-gray-700 hover:text-red-600 transition-colors p-2 ml-1 sm:ml-2 flex-shrink-0"
