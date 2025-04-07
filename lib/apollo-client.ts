@@ -1,42 +1,29 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { setContext } from "@apollo/client/link/context";
+// Removed Cookies import as it's not needed for session-based auth
 
 const httpLink = createHttpLink({
-  uri: "https://backend-l9gz.onrender.com/graphql",
-  credentials: "include", // Crucial for sending cookies cross-domain
+  uri: `https://backend-l9gz.onrender.com/graphql`,
+  credentials: "include",
 });
 
-// Add request headers context link
-const authLink = setContext((_, { headers }) => {
-  return {
-    headers: {
-      ...headers,
-      // Ensure content-type is always set
-      "Content-Type": "application/json",
-      // Add any other headers your backend might need
-      "X-Requested-With": "XMLHttpRequest",
-    },
-  };
-});
+// Removed authLink as it's not needed for session-based auth
 
 const client = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: httpLink, // Directly use httpLink
   cache: new InMemoryCache(),
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: "cache-and-network", // Better for session-based apps
-      errorPolicy: "all",
+      fetchPolicy: "no-cache",
+      errorPolicy: "ignore",
     },
     query: {
-      fetchPolicy: "network-only", // Ensures fresh session data
-      errorPolicy: "all",
-    },
-    mutate: {
+      fetchPolicy: "no-cache",
       errorPolicy: "all",
     },
   },
-  // Enable sending cookies with every request
-  credentials: "include",
+  credentials: "include", // Ensure credentials are included in requests
 });
 
 export default client;
