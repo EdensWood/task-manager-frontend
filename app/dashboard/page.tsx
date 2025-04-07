@@ -23,26 +23,14 @@ export default function Dashboard() {
     try {
       await deleteTask({
         variables: { id },
-        update: (cache) => {
-          const existingTasks = cache.readQuery<{ myTasks: Task[] }>({
-            query: GET_MY_TASKS,
-          });
-  
-          if (existingTasks) {
-            // Filtering out the task from the cache to remove it immediately
-            cache.writeQuery({
-              query: GET_MY_TASKS,
-              data: {
-                myTasks: existingTasks.myTasks.filter((task) => task.id !== id),
-              },
-            });
-          }
-        },
       });
+  
+      await refetch(); // <--- Add this to re-fetch fresh tasks from server
     } catch (err) {
       console.error("Delete error:", err);
     }
   };
+  
 
   if (loading) return <div className="text-center py-8">Loading tasks...</div>;
   if (error) return <div className="text-center py-8 text-red-500">Error: {error.message}</div>;
