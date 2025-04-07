@@ -6,11 +6,6 @@ import { setContext } from "@apollo/client/link/context";
 const httpLink = createHttpLink({
   uri: `https://backend-l9gz.onrender.com/graphql`,
   credentials: "include",
-  headers: {
-    // Add this to ensure cookies are sent cross-domain
-    'X-Requested-With': 'XMLHttpRequest'
-  }
-   // Ensure cookies are sent with requests
 });
 
 // Removed authLink as it's not needed for session-based auth
