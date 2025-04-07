@@ -90,10 +90,11 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
               Title *
             </label>
             <input
+              id="title"
               {...register("title", { required: true })}
               className={`w-full px-3 py-2 border rounded-md ${
                 errors.title ? "border-red-500" : "border-gray-300"
@@ -105,10 +106,11 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
               Description
             </label>
             <textarea
+              id="description"
               {...register("description")}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -116,10 +118,11 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
               Status
             </label>
             <select
+              id="status"
               {...register("status")}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
