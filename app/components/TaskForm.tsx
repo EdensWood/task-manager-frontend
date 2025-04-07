@@ -12,7 +12,6 @@ const TASK_STATUS = {
   COMPLETED: "COMPLETED"
 } as const;
 
-
 interface TaskFormProps {
   task?: Task;
   onClose: () => void;
@@ -46,10 +45,10 @@ const UPDATE_TASK = gql`
 `;
 
 export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
-  const { 
-    register, 
-    handleSubmit, 
-    formState: { errors, isDirty } 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty }
   } = useForm({
     defaultValues: {
       title: task?.title || "",
@@ -62,21 +61,18 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
     task?.id ? UPDATE_TASK : CREATE_TASK,
     {
       onCompleted: () => {
-        toast.success(task?.id ? "Task updated!" : "Task created!");
+        toast.success(task?.id ? "✅ Task updated successfully!" : "🎉 Task created successfully!");
         onSuccess?.();
         onClose();
       },
       onError: (error) => {
-        toast.error(`Error: ${error.message}`);
+        toast.error(`❌ Error: ${error.message}`);
       }
     }
   );
 
   const onSubmit = (data: any) => {
-    const variables = task?.id 
-      ? { id: task.id, ...data }
-      : data;
-    
+    const variables = task?.id ? { id: task.id, ...data } : data;
     saveTask({ variables });
   };
 

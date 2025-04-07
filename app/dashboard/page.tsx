@@ -8,6 +8,7 @@ import { useState } from "react";
 import { FaPlus, FaSignOutAlt } from "react-icons/fa";
 import { Task } from "@/app/types/task";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function Dashboard() {
   const { data, loading, error, refetch } = useQuery<{ myTasks: Task[] }>(GET_MY_TASKS);
@@ -32,6 +33,7 @@ export default function Dashboard() {
     } catch (err) {
       console.error("Delete error:", err);
     }
+    toast.success("Task deleted");
   };
 
   const handleLogout = async () => {
@@ -42,6 +44,7 @@ export default function Dashboard() {
     } catch (err) {
       console.error("Logout failed", err);
     }
+    toast.success("Logged out");
   };
 
   if (loading) return <div className="text-center py-8">Loading tasks...</div>;

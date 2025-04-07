@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 
-// 1. Define proper TypeScript interfaces
 interface LoginData {
   login: {
     user: {
@@ -21,7 +20,6 @@ interface LoginVariables {
   password: string;
 }
 
-// 2. GraphQL mutation with proper typing
 const LOGIN_MUTATION = gql`
   mutation Login($email: String!, $password: String!) {
     login(email: $email, password: $password) {
@@ -38,17 +36,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  // 3. Type-safe mutation hook
   const [login, { loading, error }] = useMutation<LoginData, LoginVariables>(
     LOGIN_MUTATION,
     {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onCompleted: (data) => {
+        toast.success(`👋 Welcome back, ${data.login.user.name}!`);
         router.push("/dashboard");
         router.refresh();
       },
       onError: (err) => {
-        toast.error("Login failed. Please check your credentials.");
+        toast.error("🚫 Login failed. Please check your credentials.");
         console.error("Login error:", err);
       },
     }
@@ -65,15 +62,14 @@ export default function LoginPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Welcome back</h1>
           <p className="mt-2 text-gray-600">Sign in to your account</p>
-          
-          {/* 4. Display GraphQL errors if they exist */}
+
           {error && (
             <div className="p-2 mt-4 text-sm text-red-600 bg-red-50 rounded-md">
               {error.message}
             </div>
           )}
         </div>
-        
+
         <form onSubmit={handleLogin} className="mt-8 space-y-6">
           <div className="space-y-4">
             <div>
@@ -122,8 +118,8 @@ export default function LoginPage() {
         <div className="text-center">
           <p className="text-sm text-gray-600">
             Don&apos;t have an account?{" "}
-            <Link 
-              href="/sign-up" 
+            <Link
+              href="/sign-up"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
               Sign up

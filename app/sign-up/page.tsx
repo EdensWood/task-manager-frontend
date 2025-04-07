@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 
-// 1. TypeScript interfaces
+// TypeScript interfaces
 interface RegisterData {
   register: {
     user: {
@@ -24,7 +24,7 @@ interface RegisterVariables {
   password: string;
 }
 
-// 2. Register mutation
+// GraphQL mutation
 const REGISTER_MUTATION = gql`
   mutation Register($name: String!, $email: String!, $password: String!) {
     register(name: $name, email: $email, password: $password) {
@@ -43,16 +43,15 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  // 3. Type-safe mutation hook
   const [register, { loading, error }] = useMutation<RegisterData, RegisterVariables>(
     REGISTER_MUTATION,
     {
       onCompleted: (data) => {
-        toast.success("Account created successfully!");
+        toast.success(`🎉 Welcome aboard, ${data.register.user.name}!`);
         router.push("/dashboard");
       },
       onError: (err) => {
-        toast.error("Registration failed. Please try again.");
+        toast.error("🚫 Registration failed. Please try again.");
         console.error("Registration error:", err);
       },
     }
@@ -69,14 +68,14 @@ export default function SignupPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Create account</h1>
           <p className="mt-2 text-gray-600">Get started with your new account</p>
-          
+
           {error && (
             <div className="p-2 mt-4 text-sm text-red-600 bg-red-50 rounded-md">
               {error.message.replace("GraphQL error: ", "")}
             </div>
           )}
         </div>
-        
+
         <form onSubmit={handleRegister} className="mt-8 space-y-6">
           <div className="space-y-4">
             <div>
@@ -140,8 +139,8 @@ export default function SignupPage() {
         <div className="text-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
-            <Link 
-              href="/sign-in" 
+            <Link
+              href="/sign-in"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
               Sign in
