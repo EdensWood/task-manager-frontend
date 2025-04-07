@@ -1,16 +1,19 @@
 "use client";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_MY_TASKS } from "@/app/graphql/queries";
-import { DELETE_TASK_MUTATION } from "@/app/graphql/mutations";
+import { DELETE_TASK_MUTATION, LOGOUT_MUTATION } from "@/app/graphql/mutations";
 import TaskForm from "@/app/components/TaskForm";
 import TaskList from "@/app/components/TaskList";
 import { useState } from "react";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaSignOutAlt } from "react-icons/fa";
 import { Task } from "@/app/types/task";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
   const { data, loading, error, refetch } = useQuery<{ myTasks: Task[] }>(GET_MY_TASKS);
   const [deleteTask] = useMutation(DELETE_TASK_MUTATION);
+  const [logout] = useMutation(LOGOUT_MUTATION);
+  const router = useRouter();
 
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
@@ -24,13 +27,22 @@ export default function Dashboard() {
       await deleteTask({
         variables: { id },
       });
-  
-      await refetch(); // <--- Add this to re-fetch fresh tasks from server
+
+      await refetch();
     } catch (err) {
       console.error("Delete error:", err);
     }
   };
-  
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/sign-in");
+      router.refresh();
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+  };
 
   if (loading) return <div className="text-center py-8">Loading tasks...</div>;
   if (error) return <div className="text-center py-8 text-red-500">Error: {error.message}</div>;
@@ -45,12 +57,20 @@ export default function Dashboard() {
               {filteredTasks.length} {filteredTasks.length === 1 ? 'task' : 'tasks'} to complete
             </p>
           </div>
-          <button
-            onClick={() => setShowTaskForm(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2"
-          >
-            <FaPlus /> New Task
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowTaskForm(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2"
+            >
+              <FaPlus /> New Task
+            </button>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-4 py-2 rounded-md flex items-center gap-2"
+            >
+              <FaSignOutAlt /> Logout
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
