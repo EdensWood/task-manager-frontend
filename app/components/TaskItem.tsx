@@ -82,7 +82,7 @@ export default function TaskItem({ task, onEdit, onDelete }: TaskItemProps) {
             )}
             <div className="mt-2 flex items-center gap-2">
               <span className={`text-xs px-2 py-1 rounded-full ${status.bg} ${status.text}`}>
-                {task.status.toLowerCase().replace("_", " ")}
+                {task.status.toUpperCase().replace("_", " ")}
               </span>
               {/* <span className="text-xs text-gray-500">
                 {new Date(task.createdAt).toLocaleDateString()}

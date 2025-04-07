@@ -55,37 +55,58 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">My Tasks</h1>
-            <p className="text-gray-600 mt-1">
+        {/* Header Section with Responsive Buttons */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+          <div className="w-full sm:w-auto">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">My Tasks</h1>
+            <p className="text-gray-600 mt-1 text-sm md:text-base">
               {activeTaskCount} {activeTaskCount === 1 ? 'active task' : 'active tasks'}
             </p>
           </div>
-          <div className="flex items-center gap-3 w-full md:w-auto">
+          
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {/* Filter Button - Icon only on mobile */}
             <button
               onClick={() => setShowCompleted(!showCompleted)}
-              className="flex items-center gap-2 text-gray-700 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-center sm:justify-start gap-2 text-gray-700 bg-white p-2 sm:px-4 sm:py-2 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors flex-shrink-0"
+              aria-label={showCompleted ? 'Hide completed' : 'Show completed'}
             >
               <FaFilter className="text-gray-500" />
-              {showCompleted ? 'Hide Completed' : 'Show Completed'}
+              <span className="hidden sm:inline">
+                {showCompleted ? 'Hide Completed' : 'Show Completed'}
+              </span>
             </button>
+
+            {/* Add Task Button - Full width on mobile, auto on larger */}
             <button
               onClick={() => setShowTaskForm(true)}
-              className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+              className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all"
             >
-              <FaPlus /> Add Task
+              <FaPlus className="flex-shrink-0" />
+              <span className="truncate">Add Task</span>
+            </button>
+
+            {/* Logout Button - Different versions for mobile/desktop */}
+            <button
+              onClick={handleLogout}
+              className="md:hidden text-gray-700 hover:text-red-600 transition-colors p-2 ml-1 sm:ml-2 flex-shrink-0"
+              title="Logout"
+              aria-label="Logout"
+            >
+              <FaSignOutAlt />
             </button>
             <button
               onClick={handleLogout}
-              className="hidden md:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
+              className="hidden md:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors px-3 py-2 rounded-lg hover:bg-gray-100"
               title="Logout"
             >
               <FaSignOutAlt />
+              <span className="hidden lg:inline">Logout</span>
             </button>
           </div>
         </div>
 
+        {/* Task List Container */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <TaskList 
             tasks={filteredTasks}
